@@ -23,7 +23,6 @@ else:
     users = {}
 
 # Команда /start
-@dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     user_id = str(message.from_user.id)
     ref_code = message.get_args()
@@ -62,7 +61,6 @@ async def start(message: types.Message):
     await message.answer(text, reply_markup=keyboard)
 
 # Обработка кнопки "Каталог"
-@dp.message_handler(lambda message: message.text == "📦 Каталог")
 async def show_catalog(message: types.Message):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     for product in products:
@@ -74,7 +72,6 @@ async def show_catalog(message: types.Message):
     await message.answer("Выберите товар:", reply_markup=keyboard)
 
 # Обработка товаров
-@dp.callback_query_handler(lambda c: c.data.startswith("product_"))
 async def show_product(call: types.CallbackQuery):
     product_id = int(call.data.split("_")[1])
     product = next((p for p in products if p['id'] == product_id), None)
@@ -97,7 +94,6 @@ async def show_product(call: types.CallbackQuery):
         )
 
 # Обработка кнопки "Профиль"
-@dp.message_handler(lambda message: message.text == "👤 Профиль")
 async def profile(message: types.Message):
     user = message.from_user
     user_id = str(user.id)
@@ -136,18 +132,24 @@ async def profile(message: types.Message):
     await message.answer(text, parse_mode="HTML", reply_markup=keyboard)
 
 # Обработка команды, которая будет отправлять реферальную ссылку
-@dp.callback_query_handler(lambda c: c.data.startswith("send_ref_link_"))
 async def send_ref_link(call: types.CallbackQuery):
     user_id = call.data.split("_")[-1]
     ref_link = f"https://t.me/{(await bot.get_me()).username}?start={user_id}"
     await call.message.answer(f"Твоя реферальная ссылка:\n{ref_link}")
 
 # Команда /get_ref_link
-@dp.message_handler(commands=['get_ref_link'])
 async def get_ref_link(message: types.Message):
     user_id = message.from_user.id
     ref_link = f"https://t.me/{(await bot.get_me()).username}?start={user_id}"
     await message.answer(f"Твоя реферальная ссылка:\n{ref_link}")
+
+# Регистрация обработчиков
+dp.register_message_handler(start, commands=['start'])
+dp.register_message_handler(show_catalog, lambda message: message.text == "📦 Каталог")
+dp.register_message_handler(profile, lambda message: message.text == "👤 Профиль")
+dp.register_message_handler(get_ref_link, commands=['get_ref_link'])
+dp.register_callback_query_handler(show_product, lambda c: c.data.startswith("product_"))
+dp.register_callback_query_handler(send_ref_link, lambda c: c.data.startswith("send_ref_link_"))
 
 if __name__ == '__main__':
     # Запускаем бота с использованием asyncio
