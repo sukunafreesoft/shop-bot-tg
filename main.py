@@ -118,7 +118,7 @@ async def profile(message: Message):
 
     invited_by_username = "—"
     if invited_by and invited_by in users:
-        invited_user = await bot.get_chat(invited_by)
+        invited_user = await bot.get_chat(int(invited_by))
         invited_by_username = f"@{invited_user.username}" if invited_user.username else hcode(invited_by)
 
     text = (
