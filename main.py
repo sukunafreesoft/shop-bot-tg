@@ -3,12 +3,15 @@ import logging
 import os
 from datetime import datetime
 from aiogram import Bot, Dispatcher, types
-import asyncio
+from aiogram.fsm.router import Router
+from aiogram.types import Message
+from aiogram import F
 
 API_TOKEN = '7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0'  # Замени на свой
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
+router = Router()
 dp = Dispatcher()
 
 # Загрузка товаров
@@ -144,14 +147,16 @@ async def get_ref_link(message: types.Message):
     await message.answer(f"Твоя реферальная ссылка:\n{ref_link}")
 
 # Регистрация обработчиков
-dp.register_message_handler(start, commands=['start'])
-dp.register_message_handler(show_catalog, lambda message: message.text == "📦 Каталог")
-dp.register_message_handler(profile, lambda message: message.text == "👤 Профиль")
-dp.register_message_handler(get_ref_link, commands=['get_ref_link'])
-dp.register_callback_query_handler(show_product, lambda c: c.data.startswith("product_"))
-dp.register_callback_query_handler(send_ref_link, lambda c: c.data.startswith("send_ref_link_"))
+router.message(F.command('start'))(start)
+router.message(F.text == "📦 Каталог")(show_catalog)
+router.message(F.text == "👤 Профиль")(profile)
+router.message(F.command('get_ref_link'))(get_ref_link)
+router.callback_query(F.data.startswith("product_"))(show_product)
+router.callback_query(F.data.startswith("send_ref_link_"))(send_ref_link)
+
+# Регистрация маршрутизатора в диспетчере
+dp.include_router(router)
 
 if __name__ == '__main__':
-    # Запускаем бота с использованием asyncio
     from aiogram import executor
-    asyncio.run(executor.start_polling(dp, skip_updates=True))
+    executor.start_polling(dp, skip_updates=True)
