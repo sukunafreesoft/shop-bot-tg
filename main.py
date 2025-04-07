@@ -2,46 +2,51 @@ import json
 import logging
 import os
 from datetime import datetime
-
-from aiogram import Bot, Dispatcher, F
-from aiogram.types import Message, CallbackQuery, KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram import Bot, Dispatcher, F, Router
+from aiogram.types import (
+    Message, CallbackQuery,
+    KeyboardButton, ReplyKeyboardMarkup,
+    InlineKeyboardMarkup, InlineKeyboardButton
+)
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.utils.markdown import hcode
 from aiogram.client.default import DefaultBotProperties
-from aiogram import Router
-from aiogram import types
 import asyncio
 
-# Настройки
-BOT_TOKEN = "7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0"
+# Получаем токен из переменной окружения Railway
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN не найден. Убедитесь, что он указан в Railway переменных окружения.")
+
+# Логирование
 logging.basicConfig(level=logging.INFO)
 
+# Инициализация
+bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 router = Router()
-bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 # Загрузка товаров
-with open('products.json', 'r') as f:
+with open("products.json", "r", encoding="utf-8") as f:
     products = json.load(f)
 
 # Загрузка пользователей
 if os.path.exists("users.json"):
-    with open("users.json", "r") as f:
+    with open("users.json", "r", encoding="utf-8") as f:
         users = json.load(f)
 else:
     users = {}
 
 # /start
 @router.message(Command("start"))
-async def cmd_start(message: Message, command: Command.CommandObject):
+async def cmd_start(message: Message):
     user = message.from_user
     user_id = str(user.id)
-    ref_code = command.args if command.args else None
+    ref_code = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else None
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Инфа о юзере
     user_data = {
         "id": user.id,
         "first_name": user.first_name,
@@ -57,8 +62,8 @@ async def cmd_start(message: Message, command: Command.CommandObject):
         users[user_id] = user_data
         if ref_code and ref_code != user_id and ref_code in users:
             users[ref_code]["invited_count"] = users[ref_code].get("invited_count", 0) + 1
-        with open("users.json", "w") as f:
-            json.dump(users, f, indent=2)
+        with open("users.json", "w", encoding="utf-8") as f:
+            json.dump(users, f, indent=2, ensure_ascii=False)
 
     text = f"Привет, {user.first_name or 'друг'}!\n\n"
     if ref_code:
@@ -79,7 +84,7 @@ async def show_catalog(message: Message):
     ])
     await message.answer("Выберите товар:", reply_markup=keyboard)
 
-# Просмотр товара
+# Товар
 @router.callback_query(F.data.startswith("product_"))
 async def show_product(callback: CallbackQuery):
     product_id = int(callback.data.split("_")[1])
