@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from aiogram import Bot, Dispatcher, executor, types
 
-API_TOKEN = '7528981571:AAH9Q__5uEUu0iL0EQ9BIKNdCMC4ru7vtpk'  # Замени на свой
+API_TOKEN = '7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0'  # Замени на свой
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
