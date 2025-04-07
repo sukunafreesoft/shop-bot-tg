@@ -134,7 +134,7 @@ async def profile(message: Message):
     )
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton("Пригласить друга", callback_data=f"send_ref_link_{user.id}")]
+        InlineKeyboardButton(text="Пригласить друга", callback_data=f"send_ref_link_{user.id}")
     ])
     await message.answer(text, reply_markup=keyboard)
 
