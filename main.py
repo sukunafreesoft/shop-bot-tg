@@ -5,6 +5,7 @@ from datetime import datetime
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message
 from aiogram import F
+import asyncio
 
 API_TOKEN = '7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0'  # Замени на свой
 
@@ -152,6 +153,6 @@ dp.message(F.command('get_ref_link'))(get_ref_link)
 dp.callback_query(F.data.startswith("product_"))(show_product)
 dp.callback_query(F.data.startswith("send_ref_link_"))(send_ref_link)
 
+# Запуск бота через asyncio
 if __name__ == '__main__':
-    from aiogram import executor
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(dp.start_polling())
