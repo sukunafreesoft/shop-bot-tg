@@ -4,7 +4,6 @@ import os
 from datetime import datetime
 from aiogram import Bot, Dispatcher, types
 from aiogram import F
-from aiogram.utils import executor
 from aiogram import Application
 import asyncio
 
