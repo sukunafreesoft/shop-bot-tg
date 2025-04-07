@@ -14,7 +14,7 @@ from aiogram import types
 import asyncio
 
 # Настройки
-BOT_TOKEN = os.getenv("7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0")
+BOT_TOKEN = "7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0"
 
 logging.basicConfig(level=logging.INFO)
 
