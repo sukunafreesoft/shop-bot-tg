@@ -3,12 +3,13 @@ import logging
 import os
 from datetime import datetime
 from aiogram import Bot, Dispatcher, types
+import asyncio
 
 API_TOKEN = '7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0'  # Замени на свой
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
 
 # Загрузка товаров
 with open('products.json', 'r') as f:
@@ -149,4 +150,6 @@ async def get_ref_link(message: types.Message):
     await message.answer(f"Твоя реферальная ссылка:\n{ref_link}")
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    # Запускаем бота с использованием asyncio
+    from aiogram import executor
+    asyncio.run(executor.start_polling(dp, skip_updates=True))
