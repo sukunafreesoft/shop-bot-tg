@@ -3,7 +3,6 @@ import logging
 import os
 from datetime import datetime
 from aiogram import Bot, Dispatcher, types
-from aiogram.fsm.router import Router
 from aiogram.types import Message
 from aiogram import F
 
@@ -11,7 +10,6 @@ API_TOKEN = '7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0'  # Замени н�
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
-router = Router()
 dp = Dispatcher()
 
 # Загрузка товаров
@@ -146,16 +144,13 @@ async def get_ref_link(message: types.Message):
     ref_link = f"https://t.me/{(await bot.get_me()).username}?start={user_id}"
     await message.answer(f"Твоя реферальная ссылка:\n{ref_link}")
 
-# Регистрация обработчиков
-router.message(F.command('start'))(start)
-router.message(F.text == "📦 Каталог")(show_catalog)
-router.message(F.text == "👤 Профиль")(profile)
-router.message(F.command('get_ref_link'))(get_ref_link)
-router.callback_query(F.data.startswith("product_"))(show_product)
-router.callback_query(F.data.startswith("send_ref_link_"))(send_ref_link)
-
-# Регистрация маршрутизатора в диспетчере
-dp.include_router(router)
+# Регистрация обработчиков с помощью нового подхода
+dp.message(F.command('start'))(start)
+dp.message(F.text == "📦 Каталог")(show_catalog)
+dp.message(F.text == "👤 Профиль")(profile)
+dp.message(F.command('get_ref_link'))(get_ref_link)
+dp.callback_query(F.data.startswith("product_"))(show_product)
+dp.callback_query(F.data.startswith("send_ref_link_"))(send_ref_link)
 
 if __name__ == '__main__':
     from aiogram import executor
