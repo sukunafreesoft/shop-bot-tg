@@ -3,15 +3,17 @@ import logging
 import os
 from datetime import datetime
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import Message
 from aiogram import F
+from aiogram.utils import executor
+from aiogram import Application
 import asyncio
 
 API_TOKEN = '7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0'  # Замени на свой
 
 logging.basicConfig(level=logging.INFO)
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)  # Передаем bot в Dispatcher
+
+# Создание объекта Application
+application = Application.builder().token(API_TOKEN).build()
 
 # Загрузка товаров
 with open('products.json', 'r') as f:
@@ -146,13 +148,13 @@ async def get_ref_link(message: types.Message):
     await message.answer(f"Твоя реферальная ссылка:\n{ref_link}")
 
 # Регистрация обработчиков с помощью нового подхода
-dp.message(F.command('start'))(start)
-dp.message(F.text == "📦 Каталог")(show_catalog)
-dp.message(F.text == "👤 Профиль")(profile)
-dp.message(F.command('get_ref_link'))(get_ref_link)
-dp.callback_query(F.data.startswith("product_"))(show_product)
-dp.callback_query(F.data.startswith("send_ref_link_"))(send_ref_link)
+application.add_handler(types.MessageHandler(F.command('start'), start))
+application.add_handler(types.MessageHandler(F.text == "📦 Каталог", show_catalog))
+application.add_handler(types.MessageHandler(F.text == "👤 Профиль", profile))
+application.add_handler(types.MessageHandler(F.command('get_ref_link'), get_ref_link))
+application.add_handler(types.CallbackQueryHandler(F.data.startswith("product_"), show_product))
+application.add_handler(types.CallbackQueryHandler(F.data.startswith("send_ref_link_"), send_ref_link))
 
 # Запуск бота через asyncio
 if __name__ == '__main__':
-    asyncio.run(dp.start_polling())  # Запускаем polling
+    asyncio.run(application.run_polling())  # Запускаем polling
