@@ -1,0 +1,23 @@
+{
+  "7912797735": {
+    "invited_by": "",
+    "joined_at": "2025-04-07 18:14:56",
+    "invited_count": 1
+  },
+  "6340125370": {
+    "invited_by": "7912797735",
+    "joined_at": "2025-04-07 18:36:11",
+    "invited_count": 1
+  },
+  "7893682807": {
+    "id": 7893682807,
+    "first_name": "Ink",
+    "last_name": null,
+    "username": "inatriks",
+    "language_code": "ru",
+    "referral_code": "6340125370",
+    "joined_at": "2025-04-07 18:46:08",
+    "invited_by": "6340125370",
+    "device_info": "Unknown"
+  }
+}
