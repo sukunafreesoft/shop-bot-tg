@@ -11,7 +11,7 @@ API_TOKEN = '7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0'  # Замени н�
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher()
+dp = Dispatcher(bot)  # Передаем bot в Dispatcher
 
 # Загрузка товаров
 with open('products.json', 'r') as f:
@@ -155,4 +155,4 @@ dp.callback_query(F.data.startswith("send_ref_link_"))(send_ref_link)
 
 # Запуск бота через asyncio
 if __name__ == '__main__':
-    asyncio.run(dp.start_polling())
+    asyncio.run(dp.start_polling())  # Запускаем polling
