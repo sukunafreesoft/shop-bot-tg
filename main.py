@@ -2,17 +2,19 @@ import json
 import logging
 import os
 from datetime import datetime
-from aiogram import Bot, Dispatcher, types
-from aiogram import F
-from aiogram import Application
 import asyncio
+from aiogram import Bot, Dispatcher, types
+from aiogram.fsm.context import FSMContext
+from aiogram import Client
+from aiogram import types
 
 API_TOKEN = '7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0'  # Замени на свой
 
 logging.basicConfig(level=logging.INFO)
 
-# Создание объекта Application
-application = Application.builder().token(API_TOKEN).build()
+# Создание объекта Bot и Dispatcher
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher(bot)
 
 # Загрузка товаров
 with open('products.json', 'r') as f:
@@ -26,6 +28,7 @@ else:
     users = {}
 
 # Команда /start
+@dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     user_id = str(message.from_user.id)
     ref_code = message.get_args()
@@ -64,6 +67,7 @@ async def start(message: types.Message):
     await message.answer(text, reply_markup=keyboard)
 
 # Обработка кнопки "Каталог"
+@dp.message_handler(lambda message: message.text == "📦 Каталог")
 async def show_catalog(message: types.Message):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     for product in products:
@@ -75,6 +79,7 @@ async def show_catalog(message: types.Message):
     await message.answer("Выберите товар:", reply_markup=keyboard)
 
 # Обработка товаров
+@dp.callback_query_handler(lambda c: c.data.startswith("product_"))
 async def show_product(call: types.CallbackQuery):
     product_id = int(call.data.split("_")[1])
     product = next((p for p in products if p['id'] == product_id), None)
@@ -97,6 +102,7 @@ async def show_product(call: types.CallbackQuery):
         )
 
 # Обработка кнопки "Профиль"
+@dp.message_handler(lambda message: message.text == "👤 Профиль")
 async def profile(message: types.Message):
     user = message.from_user
     user_id = str(user.id)
@@ -135,25 +141,20 @@ async def profile(message: types.Message):
     await message.answer(text, parse_mode="HTML", reply_markup=keyboard)
 
 # Обработка команды, которая будет отправлять реферальную ссылку
+@dp.callback_query_handler(lambda c: c.data.startswith("send_ref_link_"))
 async def send_ref_link(call: types.CallbackQuery):
     user_id = call.data.split("_")[-1]
     ref_link = f"https://t.me/{(await bot.get_me()).username}?start={user_id}"
     await call.message.answer(f"Твоя реферальная ссылка:\n{ref_link}")
 
 # Команда /get_ref_link
+@dp.message_handler(commands=['get_ref_link'])
 async def get_ref_link(message: types.Message):
     user_id = message.from_user.id
     ref_link = f"https://t.me/{(await bot.get_me()).username}?start={user_id}"
     await message.answer(f"Твоя реферальная ссылка:\n{ref_link}")
 
-# Регистрация обработчиков с помощью нового подхода
-application.add_handler(types.MessageHandler(F.command('start'), start))
-application.add_handler(types.MessageHandler(F.text == "📦 Каталог", show_catalog))
-application.add_handler(types.MessageHandler(F.text == "👤 Профиль", profile))
-application.add_handler(types.MessageHandler(F.command('get_ref_link'), get_ref_link))
-application.add_handler(types.CallbackQueryHandler(F.data.startswith("product_"), show_product))
-application.add_handler(types.CallbackQueryHandler(F.data.startswith("send_ref_link_"), send_ref_link))
-
-# Запуск бота через asyncio
+# Запуск бота
 if __name__ == '__main__':
-    asyncio.run(application.run_polling())  # Запускаем polling
+    from aiogram import executor
+    executor.start_polling(dp, skip_updates=True)
