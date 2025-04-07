@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import Bot, Dispatcher, types
 
 API_TOKEN = '7118250572:AAFXeQZSewrBqvlsnmiCViWGjhiI8HlLmI0'  # Замени на свой
 
