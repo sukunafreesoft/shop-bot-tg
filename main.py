@@ -11,7 +11,6 @@ from aiogram.utils.markdown import hcode
 from aiogram.client.default import DefaultBotProperties
 from aiogram import Router
 from aiogram import types
-from aiogram import web
 import asyncio
 
 # Настройки
